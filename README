@@ -1,4 +1,6 @@
-microService 可以快速创建微服务
+MicroService help me create micro service In thinkphp FW.
+It is not perfect for your project.
+But easily write your own code, after understanded.
 
 Win:
 	Just run "microService.cmd".
