@@ -6,7 +6,7 @@
  */
 define('APP_PATH', __DIR__ . '/');
 define('LIB_PATH', APP_PATH . 'Lib/');
-$superAction = ['Home' => 'APICommonAction', 'Car' => 'APICarCommonAction', 'Admin' => 'AdminCommonAction', 'Hotel' => 'APIHotelCommonAction', 'Mainadmin' => 'APIMainAdminCommonAction', 'Shop' => 'APIShopCommonAction', 'Shopadmin' => 'APIShopAdminCommonAction', 'Web' => 'WebCommonAction'];
+$superAction = ['Home' => 'APICommonAction', 'Admin' => 'AdminCommonAction'];
 $service = new MicroService($superAction);
 $service->run();
 
@@ -81,24 +81,29 @@ class MicroService {
  */
 class  $actionName extends $extendClass
 {
-    public function get_index()
+    public function get_info()
     {
-        return parent::_index();
+
+    }
+
+    public function get_list()
+    {
+
     }
 
     public function post_add()
     {
-        return parent::_insert();
+
     }
 
     public function post_edit()
     {
-        return parent::_update();
+
     }
 
     public function delete_index()
     {
-        return parent::_delete();
+
     }
 }
 EOT;
