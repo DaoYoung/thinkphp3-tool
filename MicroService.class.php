@@ -7,6 +7,8 @@
 define('APP_PATH', __DIR__ . '/');
 define('LIB_PATH', APP_PATH . 'Lib/');
 $superAction = ['Home' => 'APICommonAction', 'Car' => 'APICarCommonAction', 'Admin' => 'AdminCommonAction', 'Hotel' => 'APIHotelCommonAction', 'Mainadmin' => 'APIMainAdminCommonAction', 'Shop' => 'APIShopCommonAction', 'Shopadmin' => 'APIShopAdminCommonAction', 'Web' => 'WebCommonAction'];
+$service = new MicroService($superAction);
+$service->run();
 
 class MicroService {
 
@@ -17,9 +19,22 @@ class MicroService {
         $this->baseActionArr = $superAction;
     }
 
+    public function run()
+    {
+        echo 'Enter table name:' . "\n";
+        $table = trim(fgets(STDIN));
+        $model = implode("", array_map("ucfirst", explode('_', $table)));
+        $dir = "";
+        while ($dir=="" || !array_key_exists($dir, $this->baseActionArr)) {
+            echo 'Select action in list: [' . implode(',', array_keys($this->baseActionArr)) . ']:' . "\n";
+            $dir = ucfirst(trim(fgets(STDIN)));
+        }
+        $this->init($dir, $model);
+    }
+
     function init($dir, $model)
     {
-        echo "\n\n--------- MicroService 1.0 init function ---------\n";
+        echo "\n\n--------- MicroService 1.0 init function ---------\n\n";
         $this->initCreate($dir, $model, 'action');
         $this->initCreate($dir, $model, 'model');
     }
@@ -35,12 +50,6 @@ class MicroService {
             case 'action':
                 $className = 'API' . $model . 'Action';
                 $file = LIB_PATH . 'Action/' . $dir . '/' . $className . '.class.php';
-                if (!array_key_exists($dir, $this->baseActionArr)) {
-                    echo 'Action dir:' . $dir . ' isn\'t exsit, chose one of [' . implode(',', array_keys($this->baseActionArr)) . ']:' . "\n";
-                    $dir = ucfirst(trim(fgets(STDIN)));
-
-                    return $this->init($dir, $model);
-                }
                 $extendClass = $this->baseActionArr[$dir];
                 break;
             case 'model':
@@ -50,7 +59,7 @@ class MicroService {
                 break;
         }
         if (file_exists($file)) {
-            echo $file . ' is exist!' . "\n\n"."Cover it? Y/N\n";
+            echo $file . ' is exist!' . "\n\n" . "Cover it? Y/N\n";
             $answer = strtolower(trim(fgets(STDIN)));
             if ($answer == 'y') {
                 $this->{$func}($file, $className, $extendClass);
@@ -64,7 +73,6 @@ class MicroService {
 
     private function initAction($file, $actionName, $extendClass)
     {
-
         $myfile = fopen($file, "w");
         $code = <<<EOT
 <?php
@@ -102,7 +110,6 @@ EOT;
 
     private function initModel($file, $modelName, $extendClass)
     {
-
         $myfile = fopen($file, "w");
         $code = <<<EOT
 <?php
@@ -121,10 +128,3 @@ EOT;
 
 }
 
-echo 'Enter table name:' . "\n";
-$table = trim(fgets(STDIN));
-$model = implode("", array_map("ucfirst", explode('_', $table)));
-echo 'Chose action dir:' . "\n";
-$dir = ucfirst(trim(fgets(STDIN)));
-$c = new MicroService($superAction);
-$c->init($dir, $model);
