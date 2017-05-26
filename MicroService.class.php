@@ -4,9 +4,10 @@
  * @author: yidao
  * @date: 2017/5/25
  */
-define('APP_PATH', __DIR__ . '/');
+define('APP_PATH', dirname(__DIR__) . '/');
 define('LIB_PATH', APP_PATH . 'Lib/');
-$superAction = ['Home' => 'APICommonAction', 'Admin' => 'AdminCommonAction'];
+define('TEST_PATH', APP_PATH . 'Test/');
+$superAction = ['Home' => 'APICommonAction', 'Car' => 'APICarCommonAction', 'Admin' => 'AdminCommonAction', 'Hotel' => 'APIHotelCommonAction', 'Mainadmin' => 'APIMainAdminCommonAction', 'Shop' => 'APIShopCommonAction', 'Shopadmin' => 'APIShopAdminCommonAction', 'Web' => 'WebCommonAction'];
 $service = new MicroService($superAction);
 $service->run();
 
@@ -21,11 +22,13 @@ class MicroService {
 
     public function run()
     {
+        echo "\nApiBuilder 1.0, create api with ThinkPHP." . "\n";
+        echo "\n--------------- Now, we begin to create Action|Model|UnitTest! ---------------\n\n";
         echo 'Enter table name:' . "\n";
         $table = trim(fgets(STDIN));
         $model = implode("", array_map("ucfirst", explode('_', $table)));
         $dir = "";
-        while ($dir=="" || !array_key_exists($dir, $this->baseActionArr)) {
+        while ($dir == "" || !array_key_exists($dir, $this->baseActionArr)) {
             echo 'Select action in list: [' . implode(',', array_keys($this->baseActionArr)) . ']:' . "\n";
             $dir = ucfirst(trim(fgets(STDIN)));
         }
@@ -34,17 +37,22 @@ class MicroService {
 
     function init($dir, $model)
     {
-        echo "\n\n--------- MicroService 1.0 init function ---------\n\n";
+        echo "\n\nApiBuilder RESULTS:\n\n";
         $this->initCreate($dir, $model, 'action');
         $this->initCreate($dir, $model, 'model');
+        $this->initCreate($dir, $model, 'actionTest');
+        $this->initCreate($dir, $model, 'modelTest');
     }
 
-    /**
-     * @see MicroService::initAction
-     * @see MicroService::initModel
-     */
+
     private function initCreate($dir, $model, $type)
     {
+        /**
+         * @see MicroService::initAction
+         * @see MicroService::initModel
+         * @see MicroService::initActionTest
+         * @see MicroService::initModelTest
+         */
         $func = "init" . ucfirst($type);
         switch ($type) {
             case 'action':
@@ -57,9 +65,31 @@ class MicroService {
                 $className = $model . 'Model';
                 $file = LIB_PATH . 'Model/' . $className . '.class.php';
                 break;
+            case 'actionTest':
+                echo 'Do you want test API, ' . "Y/N ?\n";
+                $answer = strtolower(trim(fgets(STDIN)));
+                if ($answer == 'y') {
+                    $extendClass = 'TestCase';
+                    $className = 'API' . $model . 'ActionTest';
+                    $file = TEST_PATH . 'ApiTest/' . $className . '.class.php';
+                } else {
+                    return;
+                }
+                break;
+            case 'modelTest':
+                echo 'Do you want test Model, ' . "Y/N ?\n";
+                $answer = strtolower(trim(fgets(STDIN)));
+                if ($answer == 'y') {
+                    $extendClass = 'TestCase';
+                    $className = $model . 'ModelTest';
+                    $file = TEST_PATH . 'ModelTest/' . $className . '.class.php';
+                } else {
+                    return;
+                }
+                break;
         }
         if (file_exists($file)) {
-            echo $file . ' is exist!' . "\n\n" . "Cover it? Y/N\n";
+            echo "\n" .$file . ' is exist!' . "\n\n" . "Cover it, Y/N ?\n";
             $answer = strtolower(trim(fgets(STDIN)));
             if ($answer == 'y') {
                 $this->{$func}($file, $className, $extendClass);
@@ -81,36 +111,31 @@ class MicroService {
  */
 class  $actionName extends $extendClass
 {
-    public function get_info()
+    public function get_index()
     {
-
-    }
-
-    public function get_list()
-    {
-
+        return parent::_index();
     }
 
     public function post_add()
     {
-
+        return parent::_insert();
     }
 
     public function post_edit()
     {
-
+        return parent::_update();
     }
 
     public function delete_index()
     {
-
+        return parent::_delete();
     }
 }
 EOT;
         fwrite($myfile, $code);
         fclose($myfile);
         $doc = array_flip($this->baseActionArr);
-        echo $doc[$extendClass] . '/' . $actionName . " created!\n";
+        echo "............ ".$doc[$extendClass] . '/' . $actionName . " was created!!!\n";
     }
 
     private function initModel($file, $modelName, $extendClass)
@@ -128,8 +153,51 @@ class  $modelName extends $extendClass
 EOT;
         fwrite($myfile, $code);
         fclose($myfile);
-        echo $modelName . " created!\n";
+        echo "............ ".$modelName . " was created!!!\n";
     }
 
+    private function initActionTest($file, $actionName, $extendClass)
+    {
+        $apiAction = substr($actionName, 0, -4);
+        $myfile = fopen($file, "w");
+        $code = <<<EOT
+<?php
+/**
+ * @author microService
+ */
+use Test\Lib\TestCase;
+class  $actionName extends $extendClass
+{
+    private \$_action;
+
+    public function setUp()
+    {
+        \$this->_action = new $apiAction();
+    }
+}
+EOT;
+        fwrite($myfile, $code);
+        fclose($myfile);
+        echo "............ ".$actionName . " was created!!!\n";
+    }
+
+    private function initModelTest($file, $modelName, $extendClass)
+    {
+        $myfile = fopen($file, "w");
+        $code = <<<EOT
+<?php
+/**
+ * @author microService
+ */
+use Test\Lib\TestCase;
+class  $modelName extends $extendClass
+{
+
+}
+EOT;
+        fwrite($myfile, $code);
+        fclose($myfile);
+        echo "............ ".$modelName . " was created!!!\n";
+    }
 }
 
