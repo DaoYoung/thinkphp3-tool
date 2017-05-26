@@ -1,1 +1,1 @@
-@php "%~dp0Lib\Service\MicroService.class.php"
+@php "MicroService.class.php"

@@ -6,4 +6,4 @@ Win:
 	Just run "microService.cmd".
 
 Linux:
-	run "microService"
+	run "microService.sh"
