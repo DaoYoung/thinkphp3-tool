@@ -1,9 +1,8 @@
-MicroService help me create micro service In thinkphp FW.
-It is not perfect for your project.
-But easily write your code style, after understanding.
+apiBuilder help me create restful api In thinkphp.
+Maybe it's not perfect to your project.But easily rewrite in your framework, after understanding.
 
 Win:
-	Just run "microService.cmd".
+	Just run "apiBuilder.cmd".
 
 Linux:
-	run "microService.sh"
+	run "apiBuilder.sh"
