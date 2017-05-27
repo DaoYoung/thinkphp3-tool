@@ -1,7 +1,7 @@
 <?php
 /**
- * ApiBuilder 1.0, create api with ThinkPHP.
- * @author: yidao
+ * Create restful api with ApiBuilder.
+ * @author: DaoYoung
  * @date: 2017/5/25
  */
 define('APP_PATH', __DIR__ . '/');
